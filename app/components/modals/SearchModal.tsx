@@ -3,12 +3,12 @@
 import Modal from "./Modal";
 import { useState } from "react";
 import { Range } from "react-date-range";
+import DatePicker from "../forms/Calendar"; 
 import CustomButton from "../forms/CustomButton";
-import useSearchModal from "@/app/hooks/useSearchModal";
-import DatePicker from "../forms/Calendar";
+import useSearchModal, { SearchQuery } from "@/app/hooks/useSearchModal";
 import SelectCountry, {SelectCountryValue} from "../forms/SelectCountry";
 
-const initialDateRange ={
+const initialDateRange = {
     startDate: new Date(),
     endDate: new Date(),
     key: 'selection'
@@ -20,31 +20,42 @@ const SearchModal = () => {
     const [numGuests, setNumGuests] = useState<string>('1');
     const [numBedrooms, setNumBedrooms] = useState<string>('0');
     const [country, setCountry] = useState<SelectCountryValue>();
-    const [numBathrooms, setnumBathrooms] = useState<string>('0');
+    const [numBathrooms, setNumBathrooms] = useState<string>('0');
     const [dateRange, setDateRange] = useState<Range>(initialDateRange);
 
     //
-    // 
+    //
 
     const closeAndSearch = () => {
+        const newSearchQuery: SearchQuery = {
+            country: country?.label,
+            checkIn: dateRange.startDate,
+            checkOut: dateRange.endDate,
+            guests: parseInt(numGuests),
+            bedrooms: parseInt(numBedrooms),
+            bathrooms: parseInt(numBathrooms),
+            category: ''
+        }
+
+        searchModal.setQuery(newSearchQuery);
         searchModal.close();
     }
 
     //
-    //set date range
+    // Set date range
 
-    const _setDateRange = (selction: Range) => {
+    const _setDateRange = (selection: Range) => {
         if (searchModal.step === 'checkin') {
             searchModal.open('checkout');
-        } else if (searchModal.step === 'checkout'){
+        } else if (searchModal.step === 'checkout') {
             searchModal.open('details');
         }
 
-        setDateRange(selction);
+        setDateRange(selection);
     }
 
     //
-    //Contents
+    // Contents
 
     const contentLocation = (
         <>
@@ -55,12 +66,11 @@ const SearchModal = () => {
                 onChange={(value) => setCountry(value as SelectCountryValue)}
             />
 
-            <div className="mt-6 flex flex-row  gap-4">
-                <CustomButton 
-                    label = "Check in date ->"
+            <div className="mt-6 flex flex-row gap-4">
+                <CustomButton
+                    label="Check in date ->"
                     onClick={() => searchModal.open('checkin')}
                 />
-                
             </div>
         </>
     )
@@ -74,19 +84,17 @@ const SearchModal = () => {
                 onChange={(value) => _setDateRange(value.selection)}
             />
 
-            <div className="mt-6 flex flex-row  gap-4">
-                <CustomButton 
-                    label = "<- Location"
+            <div className="mt-6 flex flex-row gap-4">
+                <CustomButton
+                    label="<- Location"
                     onClick={() => searchModal.open('location')}
                 />
-                
-                <CustomButton 
-                    label = "Check out date ->"
+
+                <CustomButton
+                    label="Check out date ->"
                     onClick={() => searchModal.open('checkout')}
                 />
-                
             </div>
-
         </>
     )
 
@@ -99,19 +107,17 @@ const SearchModal = () => {
                 onChange={(value) => _setDateRange(value.selection)}
             />
 
-            <div className="mt-6 flex flex-row  gap-4">
-                <CustomButton 
-                    label = "<- Check in date"
+            <div className="mt-6 flex flex-row gap-4">
+                <CustomButton
+                    label="<- Check in date"
                     onClick={() => searchModal.open('checkin')}
                 />
-                
-                <CustomButton 
-                    label = "Details ->"
+
+                <CustomButton
+                    label="Details ->"
                     onClick={() => searchModal.open('details')}
                 />
-                
             </div>
-
         </>
     )
 
@@ -121,65 +127,63 @@ const SearchModal = () => {
 
             <div className="space-y-4">
                 <div className="space-y-4">
-                    <label>Number of guests: </label>
+                    <label>Number of guests:</label>
                     <input 
                         type="number" 
                         min="1" 
                         value={numGuests} 
                         placeholder="Number of guests..."
-                        onChange={(e) => setNumGuests(e.target.value)}
-                        className="w-full h-14 px-4 border border-gray-300 rounded-xl" 
+                        onChange={(e) => setNumGuests(e.target.value)} 
+                        className="w-full h-14 px-4 border border-gray-300 rounded-xl"
                     />
                 </div>
 
                 <div className="space-y-4">
-                    <label>Number of bedrooms: </label>
+                    <label>Number of bedrooms:</label>
                     <input 
                         type="number" 
                         min="1" 
                         value={numBedrooms} 
                         placeholder="Number of bedrooms..."
-                        onChange={(e) => setNumBedrooms(e.target.value)}
-                        className="w-full h-14 px-4 border border-gray-300 rounded-xl" 
+                        onChange={(e) => setNumBedrooms(e.target.value)} 
+                        className="w-full h-14 px-4 border border-gray-300 rounded-xl"
                     />
                 </div>
 
                 <div className="space-y-4">
-                    <label>Number of bathrooms: </label>
+                    <label>Number of bathrooms:</label>
                     <input 
                         type="number" 
                         min="1" 
                         value={numBathrooms} 
                         placeholder="Number of bathrooms..."
-                        onChange={(e) => setnumBathrooms(e.target.value)}
-                        className="w-full h-14 px-4 border border-gray-300 rounded-xl" 
+                        onChange={(e) => setNumBathrooms(e.target.value)} 
+                        className="w-full h-14 px-4 border border-gray-300 rounded-xl"
                     />
                 </div>
             </div>
 
-            <div className="mt-6 flex flex-row  gap-4">
-                <CustomButton 
-                    label = "<- Check out date"
+            <div className="mt-6 flex flex-row gap-4">
+                <CustomButton
+                    label="<- Check out date"
                     onClick={() => searchModal.open('checkout')}
                 />
-                
-                <CustomButton 
-                    label = "Search"
+
+                <CustomButton
+                    label="Search"
                     onClick={closeAndSearch}
                 />
-                
             </div>
-
         </>
     )
 
     if (searchModal.step == 'location') {
         content = contentLocation;
-    }else if (searchModal.step == 'checkin') {
+    } else if (searchModal.step == 'checkin') {
         content = contentCheckin;
-    }else if (searchModal.step == 'checkout') {
+    } else if (searchModal.step == 'checkout') {
         content = contentCheckout;
-    }else if (searchModal.step == 'details') {
+    } else if (searchModal.step == 'details') {
         content = contentDetails;
     }
 
@@ -188,7 +192,7 @@ const SearchModal = () => {
             label="Search"
             content={content}
             close={searchModal.close}
-            isOpen={searchModal.isOpen}    
+            isOpen={searchModal.isOpen}
         />
     )
 }

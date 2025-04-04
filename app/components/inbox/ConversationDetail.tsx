@@ -7,7 +7,6 @@ import useWebSocket, {ReadyState} from "react-use-websocket";
 import { MessageType } from "@/app/inbox/[id]/page";
 import { UserType } from "@/app/inbox/page";
 
-
 interface ConversationDetailProps {
     token: string;
     userId: string;
@@ -18,27 +17,26 @@ interface ConversationDetailProps {
 const ConversationDetail: React.FC<ConversationDetailProps> = ({
     userId,
     token,
-    messages = [],
+    messages,
     conversation
 }) => {
-    const messagesDiv = useRef(null);
+    const messagesDiv = useRef<HTMLDivElement>(null);
     const [newMessage, setNewMessage] = useState('');
     const myUser = conversation.users?.find((user) => user.id == userId)
     const otherUser = conversation.users?.find((user) => user.id != userId)
     const [realtimeMessages, setRealtimeMessages] = useState<MessageType[]>([]);
 
-    const {sendJsonMessage, lastJsonMessage, readyState} = useWebSocket(`ws://127.0.0.1:8000/ws/${conversation.id}/?token=${token}`,{
-            share: false,
-            shouldReconnect: () => true,
-        },
+    const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(`${process.env.NEXT_PUBLIC_WS_HOST}/ws/${conversation.id}/?token=${token}`, {
+        share: false,
+        shouldReconnect: () => true,
+      },
     )
 
-    useEffect (() => {
+    useEffect(() => {
         console.log("Connection state changed", readyState);
     }, [readyState]);
 
     useEffect(() => {
-
         if (lastJsonMessage && typeof lastJsonMessage === 'object' && 'name' in lastJsonMessage && 'body' in lastJsonMessage) {
             const message: MessageType = {
                 id: '',
@@ -93,7 +91,7 @@ const ConversationDetail: React.FC<ConversationDetailProps> = ({
                         className={`w-[80%]py-4 px-6 rounded-xl ${message.created_by.name == myUser?.name ? 'ml-[20%] bg-blue-200' : 'bg-gray-200'}`}
                     >
                         <p className="font-bold text-gray-500">{message.created_by.name}</p>
-                        <p>{message.body} </p>
+                        <p>{message.body}</p>
                     </div>
                 ))}
 
